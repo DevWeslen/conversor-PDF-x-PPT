@@ -1,26 +1,20 @@
 import streamlit as st
 from pdf2image import convert_from_path
 from pptx import Presentation
-from pptx.util import Inches, Pt
-import pytesseract
-from pytesseract import Output
+from pptx.util import Inches
 from io import BytesIO
 import tempfile
 import os
+import pytesseract
 
-# ===== CONFIG =====
-POPPLER_PATH = r"C:\poppler\Library\bin"
-TESSERACT_PATH = r"C:\Users\weslen.silva\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
-
-pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
-
+# ===== CONFIG STREAMLIT =====
 st.set_page_config(
     page_title="PDF → PPTX",
     layout="wide"
 )
 
 st.title("📄➡️📊 Conversor de PDF para PowerPoint")
-st.write("Upload de PDF com layout fiel e geração de PPTX")
+st.write("Converte PDF mantendo layout fiel (imagem por slide)")
 
 # ===== UPLOAD =====
 uploaded_pdf = st.file_uploader(
@@ -37,10 +31,12 @@ if uploaded_pdf:
 
         if st.button("Converter para PPTX"):
             with st.spinner("Convertendo... aguarde"):
+
+                # 🔥 CONVERSÃO PDF → IMAGENS (POPPLER NO LINUX)
                 pages = convert_from_path(
                     pdf_path,
                     dpi=300,
-                    poppler_path=POPPLER_PATH
+                    poppler_path="/usr/bin"
                 )
 
                 prs = Presentation()
@@ -50,7 +46,6 @@ if uploaded_pdf:
                 for img in pages:
                     slide = prs.slides.add_slide(prs.slide_layouts[6])
 
-                    # PDF como imagem (fiel)
                     img_stream = BytesIO()
                     img.save(img_stream, format="PNG")
                     img_stream.seek(0)
@@ -67,7 +62,7 @@ if uploaded_pdf:
                 prs.save(ppt_path)
 
                 with open(ppt_path, "rb") as f:
-                    st.success("Conversão concluída!")
+                    st.success("✅ Conversão concluída!")
                     st.download_button(
                         "⬇️ Baixar PPTX",
                         f,

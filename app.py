@@ -40,7 +40,6 @@ if uploaded_pdf:
                     pages = convert_from_path(
                         pdf_path,
                         dpi=300,
-                        poppler_path=poppler_dir
                     )
 
                     prs = Presentation()
@@ -75,3 +74,4 @@ if uploaded_pdf:
                         )
                 except Exception as e:
                     st.error(f"❌ Erro ao converter PDF: {e}")
+
